@@ -3,9 +3,24 @@ import ptBR from 'date-fns/locale/pt-BR'
 import styles from './Post.module.css'
 import { Comment } from './Comment'
 import { Avatar } from './Avatar'
-import { useState } from 'react'
+import { ChangeEvent, FormEvent, InvalidEvent, useState } from 'react'
 
-export function Post(props) {
+interface PostProps {
+  author: {
+    name: string
+    role: string
+    avatarUrl: string
+  };
+  publishedAt: Date;
+  content: [
+    {
+      type: 'paragraph' | 'link' | 'tag'
+      content: string
+    }
+  ]
+}
+
+export function Post(props: PostProps) {
   const publishedDateFormatted = format(props.publishedAt, "d 'de' LLLL 'às' HH:mm'h'", {
     locale: ptBR
   })
@@ -19,21 +34,21 @@ export function Post(props) {
   ])
   const [newCommentText, setNewCommentText] = useState('')
 
-  function handleAddNewComment(){
+  function handleAddNewComment(event: FormEvent){
     event.preventDefault()
     setComments([...comments, newCommentText])
     setNewCommentText('')
   } 
-  function handleNewCommentChange() {
+  function handleNewCommentChange(event: ChangeEvent<HTMLTextAreaElement>) {
     event.target.setCustomValidity('');
     setNewCommentText(event.target.value)
   }
 
-  function handleNewCommentInvalid(){
+  function handleNewCommentInvalid(event: InvalidEvent<HTMLTextAreaElement>){
     event.target.setCustomValidity('Esse campo é obrigatório');
   }
 
-  function deleteComment(commentToDelete){
+  function deleteComment(commentToDelete: string){
     const commentWithoutDeletedOne = comments.filter(comment=>{
       return comment !== commentToDelete
     })
@@ -52,7 +67,7 @@ export function Post(props) {
             <span>{props.author.role}</span>
           </div>
         </div>
-        <time title={publishedDateFormatted} datatime={props.publishedAt.toISOString()}> Publicado {publishedDateRelativeToNow}</time>
+        <time title={publishedDateFormatted} dateTime={props.publishedAt.toISOString()}> Publicado {publishedDateRelativeToNow}</time>
       </header>
       <div className={styles.content}>
         {props.content.map(line => {
